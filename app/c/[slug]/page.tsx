@@ -31,8 +31,9 @@ const TYPE_TEXT: Record<string, string> = {
   troubleshooting: '#856404',
 };
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const category = getCategoryBySlug(params.slug);
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
   const isProvider = category.role === 'provider';

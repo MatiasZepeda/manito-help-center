@@ -50,14 +50,15 @@ const mdxComponents = {
   },
 };
 
-export default function ArticlePage({ params }: { params: { slug: string; article: string } }) {
-  const category = getCategoryBySlug(params.slug);
+export default async function ArticlePage({ params }: { params: Promise<{ slug: string; article: string }> }) {
+  const { slug, article: articleSlug } = await params;
+  const category = getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const articleMeta = category.articles.find((a) => a.slug === params.article);
+  const articleMeta = category.articles.find((a) => a.slug === articleSlug);
   if (!articleMeta) notFound();
 
-  const data = getArticleContent(params.slug, params.article);
+  const data = getArticleContent(slug, articleSlug);
   if (!data) notFound();
 
   const { meta, content } = data;
@@ -65,7 +66,7 @@ export default function ArticlePage({ params }: { params: { slug: string; articl
   const accentColor = isProvider ? '#235F73' : '#F29A72';
 
   // Sidebar: other articles in same category
-  const otherArticles = category.articles.filter((a) => a.slug !== params.article);
+  const otherArticles = category.articles.filter((a) => a.slug !== articleSlug);
 
   return (
     <div className="min-h-screen bg-white">
@@ -76,7 +77,7 @@ export default function ArticlePage({ params }: { params: { slug: string; articl
         <div className="max-w-5xl mx-auto px-6 py-3 text-sm" style={{ color: '#5C6665' }}>
           <Link href="/" className="hover:underline">Centro de Ayuda</Link>
           <span className="mx-2">›</span>
-          <Link href={`/c/${category.slug}`} className="hover:underline">{category.title}</Link>
+          <Link href={`/c/${slug}`} className="hover:underline">{category.title}</Link>
           <span className="mx-2">›</span>
           <span style={{ color: '#1E2B2E' }}>{meta.title}</span>
         </div>
@@ -136,7 +137,7 @@ export default function ArticlePage({ params }: { params: { slug: string; articl
             {/* Back */}
             <div className="mt-8">
               <Link
-                href={`/c/${category.slug}`}
+                href={`/c/${slug}`}
                 className="text-sm font-medium hover:underline"
                 style={{ color: accentColor }}
               >
@@ -159,11 +160,11 @@ export default function ArticlePage({ params }: { params: { slug: string; articl
                   <Link key={a.slug} href={`/c/${category.slug}/${a.slug}`}>
                     <div
                       className={`text-xs py-2 px-3 rounded-lg transition-colors cursor-pointer ${
-                        a.slug === params.article ? 'font-semibold' : 'hover:bg-white'
+                        a.slug === articleSlug ? 'font-semibold' : 'hover:bg-white'
                       }`}
                       style={{
-                        color: a.slug === params.article ? accentColor : '#3D4746',
-                        backgroundColor: a.slug === params.article ? '#fff' : undefined,
+                        color: a.slug === articleSlug ? accentColor : '#3D4746',
+                        backgroundColor: a.slug === articleSlug ? '#fff' : undefined,
                       }}
                     >
                       {a.title}
